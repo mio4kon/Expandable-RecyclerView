@@ -20,7 +20,7 @@ import com.mio.example.expandablerv.model.LineModel;
 import com.mio.example.expandablerv.model.MiddelModel;
 import com.mio.expandablereclcerview.ExpandMultiHolderAdapter;
 import com.mio.expandablereclcerview.model.IViewModel;
-import com.mio.expandablereclcerview.bean.ParentItem;
+import com.mio.expandablereclcerview.bean.ParentWrapper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,14 +55,14 @@ public class ExampleAdapter<P, C> extends ExpandMultiHolderAdapter<P, C> {
     }
 
     @Override
-    protected Collection<? extends IViewModel> createParentModels(List<ParentItem<P, C>> parentItems) {
+    protected Collection<? extends IViewModel> createParentModels(List<ParentWrapper<P, C>> parentWrappers) {
         List<IViewModel> parentModels = new ArrayList<>();
-        for (int i = 0; i < parentItems.size(); i++) {
-            P parent = parentItems.get(i).getParent();
+        for (int i = 0; i < parentWrappers.size(); i++) {
+            P parent = parentWrappers.get(i).getParent();
             parentModels.add(new HeadModel(parent));
             parentModels.add(new MiddelModel(parent));
             parentModels.add(new FootModel(parent));
-            if (parentItems.get(i).getChildren().size() > 0) {
+            if (parentWrappers.get(i).getChildren().size() > 0) {
                 parentModels.add(new ClickModel(parent, i));
             }
             parentModels.add(new LineModel(parent));

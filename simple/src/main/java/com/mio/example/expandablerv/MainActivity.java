@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import com.mio.example.expandablerv.adapter.ExampleAdapter;
 import com.mio.example.expandablerv.bean.Data;
 import com.mio.example.expandablerv.bean.ParentData;
-import com.mio.expandablereclcerview.bean.ParentItem;
+import com.mio.expandablereclcerview.bean.ParentWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private List<ParentItem<Data, Data>> parentDatas;
+    private List<ParentWrapper<Data, Data>> parentDatas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,14 +35,14 @@ public class MainActivity extends AppCompatActivity {
         parentDatas = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             //造20个父节点
-            ParentData<Data, Data> parent = new ParentData<>(new Data("parent:" + i));
+
             //随机造0-2个子节点
             int ranCount = i % 3;
             List<Data> children = new ArrayList<>();
             for (int j = 0; j < ranCount; j++) {
                 children.add(new Data("child:" + j));
             }
-            parent.setChildren(children);
+            ParentData<Data, Data> parent = new ParentData<>(new Data("parent:" + i), children);
             parentDatas.add(parent);
         }
     }

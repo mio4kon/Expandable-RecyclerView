@@ -13,6 +13,7 @@ public abstract class ParentViewHolder extends RecyclerView.ViewHolder implement
     private View mViewTrigger;
     private ExpandController mExpandController;
     private boolean mExpanded;
+    private int mChildSize;
 
     public ParentViewHolder(View itemView) {
         super(itemView);
@@ -26,10 +27,15 @@ public abstract class ParentViewHolder extends RecyclerView.ViewHolder implement
         mViewTrigger.setOnClickListener(this);
     }
 
+    public void initExpanded(boolean expanded, int childSize) {
+        mExpanded = expanded;
+        mChildSize = childSize;
+        onExpandChange(expanded, childSize);
+    }
 
     public abstract View getViewTrigger();
 
-    public abstract void onExpandChange(boolean expanded);
+    public abstract void onExpandChange(boolean expanded,int childSize);
 
     @Override
     public void onClick(View view) {
@@ -37,7 +43,7 @@ public abstract class ParentViewHolder extends RecyclerView.ViewHolder implement
         if (mExpandController != null) {
             mExpandController.expand(getAdapterPosition(), mExpanded);
             mExpanded = !mExpanded;
-            onExpandChange(mExpanded);
+            onExpandChange(mExpanded,mChildSize);
         }
     }
 

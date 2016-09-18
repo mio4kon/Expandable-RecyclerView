@@ -6,7 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.mio.expandablereclcerview.bean.ParentItem;
+import com.mio.expandablereclcerview.bean.ParentWrapper;
 import com.mio.expandablereclcerview.holder.IViewHolder;
 import com.mio.expandablereclcerview.holder.ParentViewHolder;
 import com.mio.expandablereclcerview.model.IParentViewModel;
@@ -24,7 +24,7 @@ import java.util.List;
  */
 public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ParentViewHolder.ExpandController {
 
-    protected List<ParentItem<P, C>> mItems;
+    protected List<ParentWrapper<P, C>> mItems;
     private List<IViewModel> mViewModel;
 
     public ExpandMultiHolderAdapter() {
@@ -42,8 +42,14 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (holder instanceof ParentViewHolder) {
+        IViewModel viewModel = mViewModel.get(position);
+        if (holder instanceof ParentViewHolder && viewModel instanceof IParentViewModel) {
             ((ParentViewHolder) holder).trigger(this);
+            IParentViewModel parentViewModel = (IParentViewModel) viewModel;
+            //刷新,滚动的时候调用bind后要设置一下之前展开,收缩的状态,状态存储在ParentWapper中
+            ParentWrapper<P, C> parentWrapper = mItems.get(parentViewModel.getParentIndex());
+            int childSize = parentWrapper.getChildren().size();
+            ((ParentViewHolder) holder).initExpanded(parentWrapper.isExpanded(), childSize);
         }
         IViewHolder iViewHolder = (IViewHolder) holder;
         iViewHolder.bindView(mViewModel.get(position));
@@ -59,17 +65,18 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
         return mViewModel.get(position).getViewType();
     }
 
-    public void notifyDataSetChanged(List<ParentItem<P, C>> parentItems) {
+    public void notifyDataSetChanged(List<ParentWrapper<P, C>> parentWrappers) {
         mItems.clear();
         mViewModel.clear();
-        mItems.addAll(parentItems);
-        mViewModel.addAll(createParentModels(parentItems));
+        mItems.addAll(parentWrappers);
+        mViewModel.addAll(createParentModels(parentWrappers));
+        notifyDataSetChanged();
     }
 
     @NonNull
     protected abstract RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType, LayoutInflater inflater);
 
-    protected abstract Collection<? extends IViewModel> createParentModels(List<ParentItem<P, C>> parentItems);
+    protected abstract Collection<? extends IViewModel> createParentModels(List<ParentWrapper<P, C>> parentWrappers);
 
     protected abstract Collection<? extends IViewModel> createChildModels(List<C> children);
 
@@ -78,25 +85,24 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
         IViewModel iViewModel = mViewModel.get(position);
         if (iViewModel instanceof IParentViewModel) {
             int parentIndex = ((IParentViewModel) iViewModel).getParentIndex();
-            ParentItem<P, C> parentItem = mItems.get(parentIndex);
+            ParentWrapper<P, C> parentWrapper = mItems.get(parentIndex);
             if (expanded) {
-                collapseViews(parentItem.getChildren(), position);
+                collapseViews(parentWrapper.getChildren(), position);
             } else {
-                expandViews(parentItem.getChildren(), position);
+                expandViews(parentWrapper.getChildren(), position);
             }
+            parentWrapper.setExpanded(!expanded);
         }
     }
 
 
     private void expandViews(List<C> children, int expandPosition) {
-        Log.d("mio4kon", "点击展开View :" + expandPosition);
         Collection<? extends IViewModel> childModels = createChildModels(children);
         mViewModel.addAll(expandPosition + 1, childModels);
         notifyItemRangeInserted(expandPosition + 1, childModels.size());
     }
 
     private void collapseViews(List<C> children, int collapsePosition) {
-        Log.d("mio4kon", "点击收缩View :" + collapsePosition);
         Collection<? extends IViewModel> childModels = createChildModels(children);
         for (int i = childModels.size() - 1; i >= 0; i--) {
             mViewModel.remove(collapsePosition + i + 1);

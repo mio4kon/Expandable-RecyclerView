@@ -36,7 +36,7 @@ public class ClickHolder extends ParentViewHolder implements IViewHolder {
     }
 
     @Override
-    public void onExpandChange(boolean expanded) {
+    public void onExpandChange(boolean expanded, int childSize) {
         tvExpend.setText(expanded ? "收起" : "展开");
     }
 
