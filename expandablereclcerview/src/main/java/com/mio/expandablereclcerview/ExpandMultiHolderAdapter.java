@@ -1,5 +1,6 @@
 package com.mio.expandablereclcerview;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -26,16 +27,23 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
 
     protected List<ParentWrapper<P, C>> mItems;
     private List<IViewModel> mViewModel;
+    /**
+     * whole model mapping the size
+     */
+    private List<Integer> mViewModelSizeMapping;
+    protected Context mContext;
 
     public ExpandMultiHolderAdapter() {
         mItems = new ArrayList();
         mViewModel = new ArrayList<>();
+        mViewModelSizeMapping = new ArrayList();
     }
 
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        mContext = parent.getContext();
+        LayoutInflater inflater = LayoutInflater.from(mContext);
         return onCreateViewHolder(parent, viewType, inflater);
     }
 
@@ -46,7 +54,7 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
         if (holder instanceof ParentViewHolder && viewModel instanceof IParentViewModel) {
             ((ParentViewHolder) holder).trigger(this);
             IParentViewModel parentViewModel = (IParentViewModel) viewModel;
-            //刷新,滚动的时候调用bind后要设置一下之前展开,收缩的状态,状态存储在ParentWapper中
+            //when refresh,scrolling,must init expanded state which save in parentWrapper
             ParentWrapper<P, C> parentWrapper = mItems.get(parentViewModel.getParentIndex());
             int childSize = parentWrapper.getChildren().size();
             ((ParentViewHolder) holder).initExpanded(parentWrapper.isExpanded(), childSize);
@@ -68,17 +76,22 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
     public void notifyDataSetChanged(List<ParentWrapper<P, C>> parentWrappers) {
         mItems.clear();
         mViewModel.clear();
+        mViewModelSizeMapping.clear();
         mItems.addAll(parentWrappers);
-        mViewModel.addAll(createParentModels(parentWrappers));
+        for (int i = 0; i < parentWrappers.size(); i++) {
+            List<? extends IViewModel> parentModels = createParentModels(parentWrappers.get(i), i);
+            mViewModel.addAll(parentModels);
+            mViewModelSizeMapping.add(parentModels.size());
+        }
         notifyDataSetChanged();
     }
 
     @NonNull
     protected abstract RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType, LayoutInflater inflater);
 
-    protected abstract Collection<? extends IViewModel> createParentModels(List<ParentWrapper<P, C>> parentWrappers);
+    protected abstract List<? extends IViewModel> createParentModels(ParentWrapper<P, C> parentWrapper, int parentIndex);
 
-    protected abstract Collection<? extends IViewModel> createChildModels(List<C> children);
+    protected abstract List<? extends IViewModel> createChildModels(List<C> children);
 
     @Override
     public void expand(int position, boolean expanded) {
@@ -86,28 +99,64 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
         if (iViewModel instanceof IParentViewModel) {
             int parentIndex = ((IParentViewModel) iViewModel).getParentIndex();
             ParentWrapper<P, C> parentWrapper = mItems.get(parentIndex);
+            //set expanded postion which model will be expanded
+            parentWrapper.setExpandedPositionInModel(position);
             if (expanded) {
-                collapseViews(parentWrapper.getChildren(), position);
+                collapseViews(parentWrapper.getChildren(), position, parentIndex);
             } else {
-                expandViews(parentWrapper.getChildren(), position);
+                expandViews(parentWrapper.getChildren(), position, parentIndex);
             }
+            //save expanded state
             parentWrapper.setExpanded(!expanded);
         }
     }
 
 
-    private void expandViews(List<C> children, int expandPosition) {
+    private void expandViews(List<C> children, int expandPosition, int parentIndex) {
         Collection<? extends IViewModel> childModels = createChildModels(children);
         mViewModel.addAll(expandPosition + 1, childModels);
+        int orgSize = mViewModelSizeMapping.get(parentIndex);
+        mViewModelSizeMapping.set(parentIndex, orgSize + children.size());
         notifyItemRangeInserted(expandPosition + 1, childModels.size());
     }
 
-    private void collapseViews(List<C> children, int collapsePosition) {
+    private void collapseViews(List<C> children, int collapsePosition, int parentIndex) {
         Collection<? extends IViewModel> childModels = createChildModels(children);
+        int orgSize = mViewModelSizeMapping.get(parentIndex);
         for (int i = childModels.size() - 1; i >= 0; i--) {
+            orgSize--;
             mViewModel.remove(collapsePosition + i + 1);
         }
+        mViewModelSizeMapping.set(parentIndex, orgSize);
         notifyItemRangeRemoved(collapsePosition + 1, childModels.size());
+    }
+
+    public void removeItem(int parentIndex) {
+        ParentWrapper<P, C> removedParentWrapper = mItems.get(parentIndex);
+        int parentModelSize = createParentModels(removedParentWrapper, parentIndex).size();
+        int childModelSize = removedParentWrapper.isExpanded() ? createChildModels(removedParentWrapper.getChildren()).size() : 0;
+        int lenth = parentModelSize + childModelSize;
+        int sumSize = 0;
+        for (int i = 0; i < parentIndex; i++) {
+            sumSize += mViewModelSizeMapping.get(i);
+        }
+        int temp = sumSize;
+        for (int i = 0; i < lenth; i++) {
+            mViewModel.remove(temp + i);
+            temp--;
+        }
+        mItems.remove(parentIndex);
+        mViewModelSizeMapping.remove(parentIndex);
+        mViewModel.clear();
+        for (int i = 0; i < mItems.size(); i++) {
+            List<? extends IViewModel> parentModels = createParentModels(mItems.get(i), i);
+            mViewModel.addAll(parentModels);
+            if (mItems.get(i).isExpanded()) {
+                mViewModel.addAll(mItems.get(i).getExpandedPositionInModel() + 1, createChildModels(mItems.get(i).getChildren()));
+            }
+        }
+        notifyItemRangeRemoved(sumSize, lenth);
+
     }
 
 }

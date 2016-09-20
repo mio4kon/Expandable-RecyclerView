@@ -13,7 +13,7 @@ import com.mio.expandablereclcerview.holder.IViewHolder;
 /**
  * Created by mio4kon on 16/9/7.
  */
-public class MiddleHolder extends RecyclerView.ViewHolder implements IViewHolder<MiddelModel<Data>> {
+public class MiddleHolder extends RecyclerView.ViewHolder implements IViewHolder<MiddelModel> {
 
     private TextView tvMiddle;
 
@@ -24,7 +24,7 @@ public class MiddleHolder extends RecyclerView.ViewHolder implements IViewHolder
 
 
     @Override
-    public void bindView(MiddelModel<Data> viewModel) {
+    public void bindView(MiddelModel viewModel) {
         Data data = viewModel.getData();
         tvMiddle.setText(data.getDataMiddle());
 

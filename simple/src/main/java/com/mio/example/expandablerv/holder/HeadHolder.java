@@ -13,7 +13,7 @@ import com.mio.expandablereclcerview.holder.IViewHolder;
 /**
  * Created by mio4kon on 16/9/7.
  */
-public class HeadHolder extends RecyclerView.ViewHolder implements IViewHolder<HeadModel<Data>> {
+public class HeadHolder extends RecyclerView.ViewHolder implements IViewHolder<HeadModel> {
 
 
     private final TextView tvHead;
@@ -25,7 +25,7 @@ public class HeadHolder extends RecyclerView.ViewHolder implements IViewHolder<H
 
 
     @Override
-    public void bindView(HeadModel<Data> viewModel) {
+    public void bindView(HeadModel viewModel) {
         Data data = viewModel.getData();
         tvHead.setText(data.getDataHead());
     }

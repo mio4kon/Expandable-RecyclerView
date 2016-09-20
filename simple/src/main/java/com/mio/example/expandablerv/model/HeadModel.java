@@ -2,20 +2,21 @@ package com.mio.example.expandablerv.model;
 
 
 import com.mio.example.expandablerv.ViewType;
+import com.mio.example.expandablerv.bean.Data;
 import com.mio.expandablereclcerview.model.IViewModel;
 
 /**
  * Created by mio4kon on 16/9/7.
  */
-public class HeadModel<T> implements IViewModel<T> {
+public class HeadModel implements IViewModel<Data> {
 
-    private T data;
+    private Data data;
 
-    public HeadModel(T data) {
+    public HeadModel(Data data) {
         this.data = data;
     }
 
-    public T getData() {
+    public Data getData() {
         return data;
     }
 

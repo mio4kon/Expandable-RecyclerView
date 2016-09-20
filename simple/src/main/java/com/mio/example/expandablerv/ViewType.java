@@ -9,5 +9,6 @@ public class ViewType {
     public static final int VIEW_TYPE_FOOT = 112;
     public static final int VIEW_TYPE_LINE = 113;
     public static final int VIEW_TYPE_CLICK = 114;
+    public static final int VIEW_TYPE_REMOVE = 115;
 
 }

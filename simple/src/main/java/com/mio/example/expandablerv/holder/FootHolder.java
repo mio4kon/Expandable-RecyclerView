@@ -13,7 +13,7 @@ import com.mio.expandablereclcerview.holder.IViewHolder;
 /**
  * Created by mio4kon on 16/9/7.
  */
-public class FootHolder extends RecyclerView.ViewHolder implements IViewHolder<FootModel<Data>> {
+public class FootHolder extends RecyclerView.ViewHolder implements IViewHolder<FootModel> {
 
 
     private final TextView tvFoot;
@@ -26,7 +26,7 @@ public class FootHolder extends RecyclerView.ViewHolder implements IViewHolder<F
 
 
     @Override
-    public void bindView(FootModel<Data> viewModel) {
+    public void bindView(FootModel viewModel) {
 
         Data data = viewModel.getData();
         tvFoot.setText(data.getDataFoot());

@@ -5,6 +5,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.mio.example.expandablerv.R;
+import com.mio.example.expandablerv.model.ClickModel;
 import com.mio.expandablereclcerview.holder.IViewHolder;
 import com.mio.expandablereclcerview.model.IViewModel;
 import com.mio.expandablereclcerview.holder.ParentViewHolder;
@@ -13,7 +14,7 @@ import com.mio.expandablereclcerview.holder.ParentViewHolder;
 /**
  * Created by mio4kon on 16/9/7.
  */
-public class ClickHolder extends ParentViewHolder implements IViewHolder {
+public class ClickHolder extends ParentViewHolder implements IViewHolder<ClickModel> {
 
     private final RelativeLayout relativeLayout;
     private final TextView tvExpend;
@@ -25,7 +26,7 @@ public class ClickHolder extends ParentViewHolder implements IViewHolder {
     }
 
     @Override
-    public void bindView(IViewModel viewModel) {
+    public void bindView(ClickModel clickModel) {
 
     }
 

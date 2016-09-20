@@ -8,12 +8,12 @@ import com.mio.expandablereclcerview.model.IViewModel;
 /**
  * Created by mio4kon on 16/9/7.
  */
-public class MiddelModel implements IViewModel<Data> {
+public class RemoveModel implements IViewModel<Data> {
 
 
     private Data data;
 
-    public MiddelModel(Data data) {
+    public RemoveModel(Data data) {
         this.data = data;
     }
 
@@ -24,6 +24,6 @@ public class MiddelModel implements IViewModel<Data> {
 
     @Override
     public int getViewType() {
-        return ViewType.VIEW_TYPE_MIDDEL;
+        return ViewType.VIEW_TYPE_REMOVE;
     }
 }

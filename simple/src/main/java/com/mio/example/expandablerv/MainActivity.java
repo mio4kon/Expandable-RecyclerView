@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        final ExampleAdapter<Data, Data> myAdapter = new ExampleAdapter<>();
+        final ExampleAdapter myAdapter = new ExampleAdapter();
         recyclerView.setAdapter(myAdapter);
 
         fakeData();
