@@ -20,21 +20,31 @@ public class RemoveHolder extends RecyclerView.ViewHolder implements IViewHolder
 
 
     private final Button btRemove;
-    private View.OnClickListener onClickListener;
+    private OnRemoveListener mRemoveListener;
 
-    public RemoveHolder(View itemView, View.OnClickListener onClickListener) {
+    public RemoveHolder(View itemView, OnRemoveListener removeListener) {
         super(itemView);
         btRemove = (Button) itemView.findViewById(R.id.bt_remove);
-        this.onClickListener = onClickListener;
+        mRemoveListener = removeListener;
     }
 
 
     @Override
     public void bindView(RemoveModel viewModel) {
         Data data = viewModel.getData();
-        btRemove.setOnClickListener(onClickListener);
+        btRemove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mRemoveListener != null) {
+                    mRemoveListener.remove(getAdapterPosition());
+                }
+            }
+        });
+
     }
 
-
+    public interface OnRemoveListener {
+        void remove(int adapterPosition);
+    }
 
 }

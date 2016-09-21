@@ -5,7 +5,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.mio.example.expandablerv.R;
 import com.mio.example.expandablerv.ViewType;
@@ -32,7 +31,7 @@ import java.util.List;
 /**
  * Created by mio4kon on 16/9/9.
  */
-public class ExampleAdapter extends ExpandMultiHolderAdapter<Data, Data> implements View.OnClickListener {
+public class ExampleAdapter extends ExpandMultiHolderAdapter<Data, Data> implements RemoveHolder.OnRemoveListener {
 
 
     @NonNull
@@ -71,7 +70,6 @@ public class ExampleAdapter extends ExpandMultiHolderAdapter<Data, Data> impleme
             parentModels.add(new ClickModel(parent, parentIndex));
         }
         parentModels.add(new RemoveModel(parent));
-        parentModels.add(new LineModel(parent));
         return parentModels;
     }
 
@@ -92,8 +90,9 @@ public class ExampleAdapter extends ExpandMultiHolderAdapter<Data, Data> impleme
         return childModels;
     }
 
+
     @Override
-    public void onClick(View view) {
-        Toast.makeText(mContext,"on click" ,Toast.LENGTH_SHORT).show();
+    public void remove(int adapterPosition) {
+        removeItemByAdapterIndex(adapterPosition);
     }
 }

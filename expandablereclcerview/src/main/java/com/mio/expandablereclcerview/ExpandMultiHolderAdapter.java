@@ -116,7 +116,10 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
         Collection<? extends IViewModel> childModels = createChildModels(children);
         mViewModel.addAll(expandPosition + 1, childModels);
         int orgSize = mViewModelSizeMapping.get(parentIndex);
-        mViewModelSizeMapping.set(parentIndex, orgSize + children.size());
+        for (C child : children) {
+
+        }
+        mViewModelSizeMapping.set(parentIndex, orgSize + childModels.size());
         notifyItemRangeInserted(expandPosition + 1, childModels.size());
     }
 
@@ -131,7 +134,12 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
         notifyItemRangeRemoved(collapsePosition + 1, childModels.size());
     }
 
-    public void removeItem(int parentIndex) {
+    /**
+     * <p>this method will be removed the whole parent models and its child models if the child models expanded</p>
+     *
+     * @param parentIndex parent index begin with 0
+     */
+    public void removeItemByParentIndex(int parentIndex) {
         ParentWrapper<P, C> removedParentWrapper = mItems.get(parentIndex);
         int parentModelSize = createParentModels(removedParentWrapper, parentIndex).size();
         int childModelSize = removedParentWrapper.isExpanded() ? createChildModels(removedParentWrapper.getChildren()).size() : 0;
@@ -156,7 +164,33 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
             }
         }
         notifyItemRangeRemoved(sumSize, lenth);
-
     }
 
+    /**
+     * <p>this method will be removed the whole parent models and its child models if the child models expanded</p>
+     *
+     * @param adapterIndex adapter index begin with 0
+     */
+    public void removeItemByAdapterIndex(int adapterIndex) {
+        int parentIndex = mapToParentPosition(adapterIndex);
+        removeItemByParentIndex(parentIndex);
+    }
+
+
+    /**
+     * <p>this method can convert adapter position to parent position </p>
+     *
+     * @param adapterPosition adapter position
+     * @return parent position
+     */
+    public int mapToParentPosition(int adapterPosition) {
+        int modelSizeSum = 0;
+        for (int i = 0; i < mViewModelSizeMapping.size(); i++) {
+            modelSizeSum += mViewModelSizeMapping.get(i);
+            if (adapterPosition <= modelSizeSum) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }
