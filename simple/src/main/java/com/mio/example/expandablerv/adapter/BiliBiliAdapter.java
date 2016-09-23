@@ -15,23 +15,17 @@ import com.mio.example.expandablerv.holder.HeadHolder;
 import com.mio.example.expandablerv.holder.LineHolder;
 import com.mio.example.expandablerv.holder.MiddleHolder;
 import com.mio.example.expandablerv.holder.RemoveHolder;
-import com.mio.example.expandablerv.model.ClickModel;
-import com.mio.example.expandablerv.model.FootModel;
-import com.mio.example.expandablerv.model.HeadModel;
-import com.mio.example.expandablerv.model.MiddelModel;
-import com.mio.example.expandablerv.model.RemoveModel;
 import com.mio.expandablereclcerview.ExpandMultiHolderAdapter;
-import com.mio.expandablereclcerview.model.IViewModel;
 import com.mio.expandablereclcerview.bean.ParentWrapper;
+import com.mio.expandablereclcerview.model.IViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by mio4kon on 16/9/9.
+ * Created by mio4kon on 16/9/22.
  */
-public class ExampleAdapter extends ExpandMultiHolderAdapter<Data, Data> implements RemoveHolder.OnRemoveListener {
-
+public class BiliBiliAdapter extends ExpandMultiHolderAdapter<Data, Data> implements RemoveHolder.OnRemoveListener {
 
     @NonNull
     @Override
@@ -61,33 +55,17 @@ public class ExampleAdapter extends ExpandMultiHolderAdapter<Data, Data> impleme
     @Override
     protected List<? extends IViewModel> createParentModels(ParentWrapper<Data, Data> parentWrapper, int parentIndex) {
         List<IViewModel> parentModels = new ArrayList<>();
-        Data parent = parentWrapper.getParent();
-        parentModels.add(new HeadModel(parent));
-        parentModels.add(new MiddelModel(parent));
-        parentModels.add(new FootModel(parent));
-        if (parentWrapper.getChildren().size() > 0) {
-            parentModels.add(new ClickModel(parent, parentIndex));
-        }
-        parentModels.add(new RemoveModel(parent));
+
         return parentModels;
     }
 
     @Override
     protected List<? extends IViewModel> createChildModels(List<Data> children) {
         List<IViewModel> childModels = new ArrayList<>();
-        for (int i = 0; i < children.size(); i++) {
-            //不同的child可能有不同的Model或不同的组合方式
-            if (i == 0) {
-                childModels.add(new HeadModel(children.get(i)));
-                childModels.add(new FootModel(children.get(i)));
-            } else {
-                childModels.add(new HeadModel(children.get(i)));
-                childModels.add(new MiddelModel(children.get(i)));
-                childModels.add(new FootModel(children.get(i)));
-            }
-        }
+
         return childModels;
     }
+
 
 
     @Override
