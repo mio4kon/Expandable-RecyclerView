@@ -116,10 +116,12 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
         Collection<? extends IViewModel> childModels = createChildModels(children);
         mViewModel.addAll(expandPosition + 1, childModels);
         int orgSize = mViewModelSizeMapping.get(parentIndex);
-        for (C child : children) {
-
-        }
         mViewModelSizeMapping.set(parentIndex, orgSize + childModels.size());
+        //must fix the expanded position under the parentIndex model
+        for (int i = mItems.size() - 1; i > parentIndex; i--) {
+            ParentWrapper pw = mItems.get(i);
+            pw.setExpandedPositionInModel(pw.getExpandedPositionInModel() + childModels.size());
+        }
         notifyItemRangeInserted(expandPosition + 1, childModels.size());
     }
 
@@ -131,6 +133,11 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
             mViewModel.remove(collapsePosition + i + 1);
         }
         mViewModelSizeMapping.set(parentIndex, orgSize);
+        //must fix the expanded position under the parentIndex model
+        for (int i = mItems.size() - 1; i > parentIndex; i--) {
+            ParentWrapper pw = mItems.get(i);
+            pw.setExpandedPositionInModel(pw.getExpandedPositionInModel() - childModels.size());
+        }
         notifyItemRangeRemoved(collapsePosition + 1, childModels.size());
     }
 
@@ -140,10 +147,7 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
      * @param parentIndex parent index begin with 0
      */
     public void removeItemByParentIndex(int parentIndex) {
-        ParentWrapper<P, C> removedParentWrapper = mItems.get(parentIndex);
-        int parentModelSize = createParentModels(removedParentWrapper, parentIndex).size();
-        int childModelSize = removedParentWrapper.isExpanded() ? createChildModels(removedParentWrapper.getChildren()).size() : 0;
-        int lenth = parentModelSize + childModelSize;
+        int lenth = mViewModelSizeMapping.get(parentIndex);
         int sumSize = 0;
         for (int i = 0; i < parentIndex; i++) {
             sumSize += mViewModelSizeMapping.get(i);
@@ -157,10 +161,17 @@ public abstract class ExpandMultiHolderAdapter<P, C> extends RecyclerView.Adapte
         mViewModelSizeMapping.remove(parentIndex);
         mViewModel.clear();
         for (int i = 0; i < mItems.size(); i++) {
+            ParentWrapper pw = mItems.get(i);
+            int expandedIndex = pw.getExpandedPositionInModel();
+            if (i >= parentIndex && expandedIndex != 0) {
+                pw.setExpandedPositionInModel(pw.getExpandedPositionInModel() - lenth);
+            }
+
             List<? extends IViewModel> parentModels = createParentModels(mItems.get(i), i);
             mViewModel.addAll(parentModels);
-            if (mItems.get(i).isExpanded()) {
-                mViewModel.addAll(mItems.get(i).getExpandedPositionInModel() + 1, createChildModels(mItems.get(i).getChildren()));
+            if (pw.isExpanded()) {
+                int expandedPositionInModel = pw.getExpandedPositionInModel();
+                mViewModel.addAll(expandedPositionInModel + 1, createChildModels(pw.getChildren()));
             }
         }
         notifyItemRangeRemoved(sumSize, lenth);
